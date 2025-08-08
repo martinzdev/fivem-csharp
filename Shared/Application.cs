@@ -66,18 +66,16 @@ namespace core.Shared
           var isSingleton = type.GetCustomAttribute<SingletonAttribute>() != null;
 
           if (_registrations.ContainsKey(interfaceType))
-            continue; // Skip if already registered
+            continue;
 
           if (isSingleton)
           {
-            // Register as singleton
             var instance = Activator.CreateInstance(type);
             _singletons[interfaceType] = instance;
             _registrations[interfaceType] = () => instance;
           }
           else
           {
-            // Register as transient
             _registrations[interfaceType] = () => Activator.CreateInstance(type);
           }
         }
@@ -87,7 +85,6 @@ namespace core.Shared
     public static void Build()
     {
       if (_built) return;
-      // Optionally, instantiate all singletons here if you want eager loading
       _built = true;
     }
 
