@@ -9,7 +9,6 @@
     ".NETStandard,Version=v2.0/": {
       "core.Server/1.0.0": {
         "dependencies": {
-          "CitizenFX.Core.Server": "1.0.10230",
           "NETStandard.Library": "2.0.3",
           "core.Shared": "1.0.0"
         },
@@ -32,6 +31,9 @@
         }
       },
       "core.Shared/1.0.0": {
+        "dependencies": {
+          "CitizenFX.Core.Server": "1.0.10230"
+        },
         "runtime": {
           "core.Shared.dll": {
             "assemblyVersion": "1.0.0.0",
