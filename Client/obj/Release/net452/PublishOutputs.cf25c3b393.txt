@@ -1,4 +1,0 @@
-E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\client\net452\publish\core.Client.net.dll
-E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\client\net452\publish\CitizenFX.Core.Client.dll
-E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\client\net452\publish\core.Shared.dll
-E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\client\net452\publish\core.Shared.pdb

@@ -1,4 +1,5 @@
 .idea
+[Oo]bj/
 bin/client/*
 !bin/client/**/publish/
 bin/server/*
