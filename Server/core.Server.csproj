@@ -18,8 +18,9 @@
     </PropertyGroup>
   
     <ItemGroup>
-      <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
       <ProjectReference Include="..\Shared\core.Shared.csproj" />
     </ItemGroup>
+    
+    
 </Project>
   
