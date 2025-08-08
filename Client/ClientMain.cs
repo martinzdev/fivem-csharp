@@ -1,22 +1,23 @@
-using System;
-using System.Threading.Tasks;
 using CitizenFX.Core;
-using static CitizenFX.Core.Native.API;
+using core.Shared;
+using core.Shared.Utils;
 
 namespace core.Client
 {
-    public class ClientMain : BaseScript
+  public class ClientMain : BaseScript
+  {
+    private Logger logger;
+    public ClientMain()
     {
-        public ClientMain()
-        {
-            Debug.WriteLine("ClientMain called");
-        }
+      SharedMain.Main();
 
-        [Command("username")]
-        public void onCommandUsername()
-        {
-            var sharedPlayer = new Shared.Player();
-            Debug.WriteLine($"Hi, {sharedPlayer.username}!");
-        }
+      this.logger = Application.Get<Logger>();
     }
+
+    [Command("hello_client")]
+    public void HelloClient()
+    {
+      logger.Info("Sure, hello.");
+    }
+  }
 }

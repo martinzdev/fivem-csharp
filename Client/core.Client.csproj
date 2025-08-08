@@ -1,5 +1,6 @@
 <Project Sdk="CitizenFX.Sdk.Client/0.2.3">
   <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <OutputPath>..\bin\client</OutputPath>
