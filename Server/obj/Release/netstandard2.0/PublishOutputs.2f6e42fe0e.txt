@@ -1,0 +1,6 @@
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\server\netstandard2.0\publish\core.Server.net.dll
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\server\netstandard2.0\publish\core.Server.deps.json
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\server\netstandard2.0\publish\core.Server.net.pdb
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\server\netstandard2.0\publish\CitizenFX.Core.Server.dll
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\server\netstandard2.0\publish\core.Shared.dll
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\server\netstandard2.0\publish\core.Shared.pdb

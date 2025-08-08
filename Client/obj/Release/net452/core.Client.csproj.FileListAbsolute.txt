@@ -1,0 +1,7 @@
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\bin\client\net452\core.Client.net.dll
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Client\obj\Release\net452\core.Client.csproj.AssemblyReference.cache
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Client\obj\Release\net452\core.Client.GeneratedMSBuildEditorConfig.editorconfig
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Client\obj\Release\net452\core.Client.csproj.CoreCompileInputs.cache
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Client\obj\Release\net452\core.Client.sourcelink.json
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Client\obj\Release\net452\core.Cli.4B056DE2.Up2Date
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Client\obj\Release\net452\core.Client.net.dll
