@@ -7,6 +7,6 @@ description 'Core for CitizenFX'
 
 file 'bin/client/net452/*.dll'
 
-client_script 'bin/client/net452/*.dll'
-server_script 'bin/server/netstandard2.0/*.dll'
+client_script 'bin/client/net452/**/*.dll'
+server_script 'bin/server/netstandard2.0/**/*.dll'
 
