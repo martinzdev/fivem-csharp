@@ -5,6 +5,11 @@
       <TargetName>$(AssemblyName).net</TargetName>
       <DefineConstants>SERVER</DefineConstants>
       <OutputPath>..\bin\server</OutputPath>
+      <PublishDir>$(OutputPath)\netstandard2.0</PublishDir>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <OutputPath>..\bin\server</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -14,7 +19,6 @@
   
     <ItemGroup>
       <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
-<!--      <Compile Include="../Shared/**/*.cs" />-->
       <ProjectReference Include="..\Shared\core.Shared.csproj" />
     </ItemGroup>
 </Project>

@@ -5,8 +5,8 @@ author 'martinzdev'
 version '1.0.0'
 description 'Core for CitizenFX'
 
-file 'bin/client/**/publish/*.dll'
+file 'bin/client/net452/*.dll'
 
-client_script 'bin/client/**/publish/*.net.dll'
-server_script 'bin/server/**/publish/*.net.dll'
+client_script 'bin/client/net452/*.dll'
+server_script 'bin/server/netstandard2.0/*.dll'
 

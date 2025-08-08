@@ -1,7 +1,5 @@
 .idea
-[Oo]bj/
-bin/client/*
-!bin/client/**/publish/
-bin/server/*
-!bin/server/**/publish/
+**/[Oo]bj/
+Client/bin
+Server/bin
 Shared/bin
