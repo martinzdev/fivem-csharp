@@ -1,0 +1,8 @@
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\bin\Debug\netstandard2.0\core.Shared.deps.json
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\bin\Debug\netstandard2.0\core.Shared.dll
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\bin\Debug\netstandard2.0\core.Shared.pdb
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\obj\Debug\netstandard2.0\core.Shared.csproj.AssemblyReference.cache
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\obj\Debug\netstandard2.0\core.Shared.GeneratedMSBuildEditorConfig.editorconfig
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\obj\Debug\netstandard2.0\core.Shared.csproj.CoreCompileInputs.cache
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\obj\Debug\netstandard2.0\core.Shared.dll
+E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\obj\Debug\netstandard2.0\core.Shared.pdb
