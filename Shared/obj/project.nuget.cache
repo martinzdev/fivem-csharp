@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "aWbFBMis/jU=",
+  "dgSpecHash": "WmJ7VPv4MAw=",
   "success": true,
   "projectFilePath": "E:\\www\\fivem\\develop\\rush-fivem-c-sharp\\resources\\[app]\\core\\Shared\\core.Shared.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\martinzdev\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\martinzdev\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
   "logs": []
 }

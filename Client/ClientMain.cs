@@ -9,7 +9,14 @@ namespace core.Client
     {
         public ClientMain()
         {
-            Debug.WriteLine("Hi from core.Client!");
+            Debug.WriteLine("ClientMain called");
+        }
+
+        [Command("username")]
+        public void onCommandUsername()
+        {
+            var sharedPlayer = new Shared.Player();
+            Debug.WriteLine($"Hi, {sharedPlayer.username}!");
         }
     }
 }

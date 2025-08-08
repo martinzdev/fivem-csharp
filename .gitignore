@@ -1,1 +1,6 @@
 .idea
+bin/client/*
+!bin/client/**/publish/
+bin/server/*
+!bin/server/**/publish/
+shared/bin

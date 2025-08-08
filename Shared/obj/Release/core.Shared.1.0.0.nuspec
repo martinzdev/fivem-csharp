@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>core.Shared</id>
+    <version>1.0.0</version>
+    <authors>core.Shared</authors>
+    <description>Package Description</description>
+    <repository type="git" commit="5c8a8dc42c583d03ba995d5f8ca15f98e6f72750" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.5.2" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="E:\www\fivem\develop\rush-fivem-c-sharp\resources\[app]\core\Shared\bin\Release\net452\core.Shared.dll" target="lib\net452\core.Shared.dll" />
+  </files>
+</package>

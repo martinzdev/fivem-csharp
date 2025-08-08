@@ -41,7 +41,7 @@
       },
       "core.Shared/1.0.0": {
         "type": "project",
-        "framework": ".NETFramework,Version=v4.5.2",
+        "framework": ".NETStandard,Version=v2.0",
         "compile": {
           "bin/placeholder/core.Shared.dll": {}
         },

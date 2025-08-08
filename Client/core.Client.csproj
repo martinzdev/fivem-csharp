@@ -1,8 +1,6 @@
 <Project Sdk="CitizenFX.Sdk.Client/0.2.3">
     <ItemGroup>
-        <Compile Include="../Shared/**/*.cs" />
-    </ItemGroup>
-    <ItemGroup>
+      <!--        <Compile Include="../Shared/**/*.cs" />-->
       <ProjectReference Include="..\Shared\core.Shared.csproj" />
     </ItemGroup>
     <PropertyGroup>

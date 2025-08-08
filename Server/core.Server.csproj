@@ -14,10 +14,7 @@
   
     <ItemGroup>
       <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
-      <Compile Include="../Shared/**/*.cs" />
-    </ItemGroup>
-  
-    <ItemGroup>
+<!--      <Compile Include="../Shared/**/*.cs" />-->
       <ProjectReference Include="..\Shared\core.Shared.csproj" />
     </ItemGroup>
 </Project>
