@@ -1,4 +1,4 @@
-namespace core.Client.Services
+namespace core.Client.Utils.Logger
 {
     public interface ILogger
     {
