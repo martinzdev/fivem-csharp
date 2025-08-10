@@ -1,4 +1,4 @@
-namespace core.Client.Utils.Logger
+namespace core.Server.Utils.Logger
 {
   public class Logger : ILogger
   {

@@ -1,4 +1,3 @@
-
 namespace core.Server.Utils.Logger
 {
   public interface ILogger
