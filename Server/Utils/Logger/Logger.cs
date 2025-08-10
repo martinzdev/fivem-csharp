@@ -1,5 +1,8 @@
+using core.Shared.DependencyInjection;
+
 namespace core.Server.Utils.Logger
 {
+  [Service(Lifecycle.Singleton)]
   public class Logger : ILogger
   {
     public void Info(string message)

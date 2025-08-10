@@ -1,7 +1,6 @@
+using System.Reflection;
 using CitizenFX.Core;
-using core.Server.Modules.Connection;
 using core.Server.Utils.Logger;
-using core.Shared;
 using core.Shared.DependencyInjection;
 
 namespace core.Server
@@ -11,19 +10,16 @@ namespace core.Server
         public Container container;
         public ServerMain()
         {
-            Debug.WriteLine("Server running!");
-            
+            LogHelper.LogAction = (message) => Debug.WriteLine($"[DI] {message}");
+
             var builder = new ContainerBuilder();
+            builder.RegisterModule(Assembly.GetExecutingAssembly());
             
-            builder.RegisterType<Logger>()
-                .SingleInstance()
-                .As<ILogger>();
-
-
-            builder.RegisterType<Connection_Controller>();
             container = builder.Build();
-
-            container.Resolve<Connection_Controller>();
+            container.ResolveControllers();
+            
+            var logger = container.Resolve<ILogger>();
+            logger.Info("Server started!");
         }
     }
 }
