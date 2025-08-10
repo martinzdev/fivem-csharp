@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace core.Shared.DependencyInjection
 {
@@ -9,6 +10,15 @@ namespace core.Shared.DependencyInjection
     {
       InstanceType = typeof(T);
       Types.Add(InstanceType);
+    }
+  }
+
+  public class ConcreteRegistration : Registration
+  {
+    public ConcreteRegistration(Type type)
+    {
+      InstanceType = type;
+      Types.Add(type);
     }
   }
 

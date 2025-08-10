@@ -91,5 +91,10 @@ namespace core.Shared.DependencyInjection
 			var resolveType = typeof(T);
 			return (T) Resolve(resolveType);
 		}
+
+		public Type[] GetRegisteredTypes()
+		{
+			return _registrations.Select(r => r.InstanceType).ToArray();
+		}
 	}
 }

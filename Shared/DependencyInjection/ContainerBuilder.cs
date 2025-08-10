@@ -21,6 +21,18 @@ namespace core.Shared.DependencyInjection
       return registration;
     }
 
+    public Registration RegisterType(Type type)
+    {
+      var registration = new ConcreteRegistration(type);
+
+      if (_registration.Any(r => r.Types.Any(t => t == type)))
+        throw new Exception($"Type {type.AssemblyQualifiedName} already registered.");
+
+      _registration.Add(registration);
+
+      return registration;
+    }
+
     public Registration<T> Register<T>(Func<T> factory)
     {
       var type = typeof(T);
