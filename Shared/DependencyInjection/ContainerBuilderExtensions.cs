@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using System.Reflection;
+using CitizenFX.Core;
 
 namespace core.Shared.DependencyInjection
 {
@@ -28,6 +30,7 @@ namespace core.Shared.DependencyInjection
       foreach (var type in types.Where(t => t.GetCustomAttribute<ControllerAttribute>() != null))
       {
         var attr = type.GetCustomAttribute<ControllerAttribute>();
+        
         var registration = builder.RegisterType(type);
             
         if (attr.Lifecycle == Lifecycle.Singleton)

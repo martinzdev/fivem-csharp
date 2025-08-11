@@ -1,3 +1,5 @@
+using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using core.Shared.Attributes.onCommand;
 using core.Shared.DependencyInjection;
 using core.Shared.Logger;

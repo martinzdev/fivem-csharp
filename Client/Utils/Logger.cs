@@ -1,8 +1,7 @@
-using System;
 using core.Shared.DependencyInjection;
 using core.Shared.Logger;
 
-namespace core.Client.Utils.Logger
+namespace core.Client.Utils
 {
     [Service(Lifecycle.Singleton, typeof(ILogger))]
     public class Logger : ILogger
