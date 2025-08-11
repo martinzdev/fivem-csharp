@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Reflection;
 using core.Shared.Attributes.onCommand;
+using core.Shared.Attributes.onTick;
 using core.Shared.DependencyInjection;
 
 namespace core.Shared
@@ -16,6 +17,9 @@ namespace core.Shared
 
       var commandRegistry = container.Resolve<onCommandRegistry>();
       commandRegistry.RegisterAllCommands(controllers);
+
+      var tickRegistry = container.Resolve<onTickRegistry>();
+      tickRegistry.RegisterAllTicks(controllers);
     }
   }
 }

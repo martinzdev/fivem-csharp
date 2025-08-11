@@ -17,23 +17,23 @@ namespace core.Shared.Attributes.onCommand
       _logger = logger;
     }
     
-    public void RegisterAllCommands(IEnumerable<object> controllers)
+    public void RegisterAllCommands(IEnumerable<object> handlersObject)
     {
-      foreach (var controller in controllers)
+      foreach (var handlerObject in handlersObject)
       {
-        RegisterControllerCommands(controller);
+        RegisterHandlerObjectCommands(handlerObject);
       }
     }
 
-    public void RegisterControllerCommands(object controller)
+    public void RegisterHandlerObjectCommands(object handlerObject)
     {
-      var methods = controller.GetType().GetMethods()
+      var methods = handlerObject.GetType().GetMethods()
         .Where(m => m.GetCustomAttributes<onCommandAttribute>().Any());
 
       foreach (var method in methods)
       {
         var attribute = method.GetCustomAttribute<onCommandAttribute>();
-        var handler = CreateCommandHandler(controller, method);
+        var handler = CreateCommandHandler(handlerObject, method);
         
         API.RegisterCommand(attribute.CommandName, handler, attribute.Restricted);
         foreach (var alias in attribute.Aliases)

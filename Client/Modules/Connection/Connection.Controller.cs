@@ -6,10 +6,10 @@ using core.Shared.Logger;
 namespace core.Client.Modules.Connection
 {
   [Controller]
-  public class Connection_Controller : BaseScript
+  public class ConnectionController
   {
-    private ILogger _logger;
-    public Connection_Controller(ILogger logger)
+    private readonly ILogger _logger;
+    public ConnectionController(ILogger logger)
     {
       _logger = logger;
       _logger.Info("Connection Controller started!");
@@ -18,7 +18,7 @@ namespace core.Client.Modules.Connection
     [onCommand("dev:command", false)]
     public void onCommand()
     {
-      Debug.WriteLine("Command executed!");
+      _logger.Info("Command executed!");
     }
   }
 }
