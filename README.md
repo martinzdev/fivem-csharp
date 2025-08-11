@@ -20,6 +20,8 @@ This project includes a custom-built Dependency Injection (DI) container located
 - **Factory Methods**: Custom instance creation logic
 - **Array Injection**: Resolve multiple implementations of the same interface
 - **Comprehensive Logging**: Debug DI operations with configurable logging
+- **Attribute-Based Registration**: Automatic service and controller registration using decorators
+- **Module Registration**: Bulk registration of all services and controllers in an assembly
 
 ### Quick DI Usage Example
 
@@ -27,18 +29,12 @@ This project includes a custom-built Dependency Injection (DI) container located
 // Setup in ClientMain.cs or ServerMain.cs
 var builder = new ContainerBuilder();
 
-// Register services
-builder.RegisterType<Logger>()
-       .SingleInstance()
-       .As<ILogger>();
-
-builder.RegisterType<PlayerService>()
-       .SingleInstance()
-       .As<IPlayerService>();
+// Register all services and controllers automatically
+builder.RegisterModule(Assembly.GetExecutingAssembly());
 
 // Build and resolve
 var container = builder.Build();
-var playerService = container.Resolve<IPlayerService>();
+container.ResolveControllers(); // Automatically resolve all controllers
 ```
 
 ### DI Architecture Components
@@ -48,6 +44,8 @@ var playerService = container.Resolve<IPlayerService>();
 - **Registration System**: Service registration metadata
 - **Extensions**: Fluent configuration methods (`.SingleInstance()`, `.As<T>()`)
 - **LogHelper**: Configurable logging for debugging DI operations
+- **Module Attributes**: `[Service]` and `[Controller]` decorators for automatic registration
+- **ContainerBuilder Extensions**: `RegisterModule()` and `ResolveControllers()` methods
 
 For complete DI documentation, see the [Dependency Injection Guide](#dependency-injection-detailed-guide) below.
 
@@ -82,7 +80,7 @@ This section provides comprehensive documentation for the custom Dependency Inje
 
 ## Overview
 
-The DI system provides a lightweight, custom-built container for managing service registration and resolution, specifically designed for FiveM environments. It supports constructor injection, singleton instances, interface-to-implementation mapping, and factory methods.
+The DI system provides a lightweight, custom-built container for managing service registration and resolution, specifically designed for FiveM environments. It supports constructor injection, singleton instances, interface-to-implementation mapping, factory methods, and **attribute-based automatic registration** using decorators.
 
 ## Architecture
 
@@ -103,6 +101,7 @@ The main DI container responsible for service resolution and instance management
 - `Resolve(Type type)`: Resolves a service by Type object
 - `ResolveSingleInstance()`: Handles singleton lifetime management
 - `ResolveArray()`: Resolves arrays of services implementing the same interface
+- `GetRegisteredTypes()`: Returns all registered types for inspection
 
 #### 2. ContainerBuilder (`ContainerBuilder.cs`)
 Fluent API for registering services and building the container.
@@ -140,55 +139,174 @@ Configurable logging system for DI operations.
 LogHelper.LogAction = (message) => Debug.WriteLine($"[DI] {message}");
 ```
 
+#### 6. Module Attributes (`ModuleAttributes.cs`) ⭐ **NEW**
+Attribute-based decorators for automatic service and controller registration.
+
+**Attributes:**
+- `[Service]`: Marks a class as a service for automatic registration
+- `[Controller]`: Marks a class as a controller for automatic registration
+- `Lifecycle`: Enum for controlling service lifetime (Singleton/Transient)
+
+#### 7. ContainerBuilder Extensions (`ContainerBuilderExtensions.cs`) ⭐ **NEW**
+Extension methods for bulk registration and controller resolution.
+
+**Methods:**
+- `RegisterModule(Assembly)`: Automatically registers all services and controllers in an assembly
+- `ResolveControllers()`: Automatically resolves all registered controllers
+
 ## Usage Examples
 
-### Basic Setup
+### Modern Setup with Decorators ⭐ **NEW**
 
-#### Client-Side Setup (ClientMain.cs:23-50)
+#### Client-Side Setup (ClientMain.cs)
 ```csharp
-private void SetupDependencyInjection()
+public class ClientMain : BaseScript
 {
-    // Configure logging
-    LogHelper.LogAction = (message) => Debug.WriteLine($"[DI] {message}");
+    private Container container;
 
-    var builder = new ContainerBuilder();
+    public ClientMain()
+    {
+        LogHelper.LogAction = (message) => Debug.WriteLine($"[DI] {message}");
 
-    // Register services as singletons with interface mapping
-    builder.RegisterType<Logger>()
-           .SingleInstance()
-           .As<ILogger>();
-
-    builder.RegisterType<VehicleService>()
-           .SingleInstance()
-           .As<IVehicleService>();
-
-    builder.RegisterType<PlayerService>()
-           .SingleInstance()
-           .As<IPlayerService>();
-
-    // Register controllers as singletons
-    builder.RegisterType<VehicleController>()
-           .SingleInstance();
-
-    builder.RegisterType<PlayerController>()
-           .SingleInstance();
-
-    _container = builder.Build();
+        var builder = new ContainerBuilder();
+        
+        // Automatically register all services and controllers
+        builder.RegisterModule(Assembly.GetExecutingAssembly());
+            
+        container = builder.Build();
+        
+        // Automatically resolve all controllers
+        container.ResolveControllers();
+        
+        var logger = container.Resolve<ILogger>();
+        logger.Info("Client started!");
+    }
 }
 ```
 
-#### Server-Side Setup (ServerMain.cs:16-26)
+#### Server-Side Setup (ServerMain.cs)
+```csharp
+public class ServerMain : BaseScript
+{
+    public Container container;
+    
+    public ServerMain()
+    {
+        LogHelper.LogAction = (message) => Debug.WriteLine($"[DI] {message}");
+
+        var builder = new ContainerBuilder();
+        
+        // Automatically register all services and controllers
+        builder.RegisterModule(Assembly.GetExecutingAssembly());
+        
+        container = builder.Build();
+        
+        // Automatically resolve all controllers
+        container.ResolveControllers();
+        
+        var logger = container.Resolve<ILogger>();
+        logger.Info("Server started!");
+    }
+}
+```
+
+### Service Registration with Decorators ⭐ **NEW**
+
+#### Basic Service Registration
+```csharp
+[Service] // Default: Singleton lifecycle
+public class Logger : ILogger
+{
+    public void Info(string message) => Debug.WriteLine($"[INFO] {message}");
+    public void Error(string message) => Debug.WriteLine($"[ERROR] {message}");
+}
+```
+
+#### Service with Custom Lifecycle
+```csharp
+[Service(Lifecycle.Transient)] // New instance each time
+public class RequestHandler : IRequestHandler
+{
+    // Implementation...
+}
+```
+
+#### Service with Interface Mapping
+```csharp
+[Service(Lifecycle.Singleton, typeof(ILogger), typeof(INotificationService))]
+public class Logger : ILogger, INotificationService
+{
+    // Implementation for both interfaces...
+}
+```
+
+#### Service with Multiple Interfaces
+```csharp
+[Service(Lifecycle.Singleton, typeof(IEmailService), typeof(INotificationService))]
+public class EmailService : IEmailService, INotificationService
+{
+    // Same instance will be used for both interfaces
+}
+```
+
+### Controller Registration with Decorators ⭐ **NEW**
+
+#### Basic Controller Registration
+```csharp
+[Controller] // Default: Singleton lifecycle
+public class PlayerController : BaseScript
+{
+    private readonly ILogger _logger;
+    private readonly IPlayerService _playerService;
+
+    public PlayerController(ILogger logger, IPlayerService playerService)
+    {
+        _logger = logger;
+        _playerService = playerService;
+        _logger.Info("PlayerController initialized!");
+    }
+}
+```
+
+#### Controller with Custom Lifecycle
+```csharp
+[Controller(Lifecycle.Transient)] // New instance each time
+public class SessionController : BaseScript
+{
+    // Implementation...
+}
+```
+
+### Traditional Manual Registration (Still Supported)
+
+#### Manual Service Registration
 ```csharp
 var builder = new ContainerBuilder();
 
+// Register services manually
 builder.RegisterType<Logger>()
-    .SingleInstance()
-    .As<ILogger>();
+       .SingleInstance()
+       .As<ILogger>();
 
-builder.RegisterType<Connection_Controller>();
-container = builder.Build();
+builder.RegisterType<PlayerService>()
+       .SingleInstance()
+       .As<IPlayerService>();
 
-container.Resolve<Connection_Controller>();
+var container = builder.Build();
+```
+
+#### Manual Controller Registration
+```csharp
+var builder = new ContainerBuilder();
+
+// Register controllers manually
+builder.RegisterType<PlayerController>()
+       .SingleInstance();
+
+builder.RegisterType<VehicleController>()
+       .SingleInstance();
+
+var container = builder.Build();
 ```
 
 ### Constructor Injection Example
@@ -196,13 +314,20 @@ container.Resolve<Connection_Controller>();
 Controllers automatically receive their dependencies through constructor injection:
 
 ```csharp
-// PlayerController.cs:19-25
-public PlayerController(ILogger logger, IPlayerService playerService, IVehicleService vehicleService)
+[Controller]
+public class PlayerController : BaseScript
 {
-    _logger = logger;
-    _playerService = playerService;
-    _vehicleService = vehicleService;
-    _logger.Info("PlayerController initialized!");
+    private readonly ILogger _logger;
+    private readonly IPlayerService _playerService;
+    private readonly IVehicleService _vehicleService;
+
+    public PlayerController(ILogger logger, IPlayerService playerService, IVehicleService vehicleService)
+    {
+        _logger = logger;
+        _playerService = playerService;
+        _vehicleService = vehicleService;
+        _logger.Info("PlayerController initialized!");
+    }
 }
 ```
 
@@ -231,27 +356,57 @@ public class MultiHandlerService
 
 ## Registration Patterns
 
-### 1. Singleton Services
+### 1. Attribute-Based Registration ⭐ **NEW**
+
+#### Service Attributes
 ```csharp
+[Service] // Singleton, auto-register as implemented interfaces
+[Service(Lifecycle.Transient)] // Transient lifecycle
+[Service(Lifecycle.Singleton, typeof(ILogger), typeof(INotificationService)] // Custom interfaces
+```
+
+#### Controller Attributes
+```csharp
+[Controller] // Singleton, auto-register
+[Controller(Lifecycle.Transient)] // Transient lifecycle
+```
+
+### 2. Singleton Services
+```csharp
+// Using decorator
+[Service(Lifecycle.Singleton)]
+public class DatabaseService : IDatabaseService { }
+
+// Manual registration
 builder.RegisterType<DatabaseService>()
        .SingleInstance()
        .As<IDatabaseService>();
 ```
 
-### 2. Transient Services
+### 3. Transient Services
 ```csharp
+// Using decorator
+[Service(Lifecycle.Transient)]
+public class RequestHandler : IRequestHandler { }
+
+// Manual registration
 builder.RegisterType<RequestHandler>()
        .As<IRequestHandler>(); // New instance each time
 ```
 
-### 3. Factory Registration
+### 4. Factory Registration
 ```csharp
 builder.Register<IConfigService>(() => new ConfigService(Environment.GetEnvironmentVariable("CONFIG_PATH")))
        .SingleInstance();
 ```
 
-### 4. Interface Mapping
+### 5. Interface Mapping
 ```csharp
+// Using decorator
+[Service(Lifecycle.Singleton, typeof(IEmailService), typeof(INotificationService))]
+public class EmailService : IEmailService, INotificationService { }
+
+// Manual registration
 builder.RegisterType<EmailService>()
        .As<IEmailService>()
        .As<INotificationService>(); // Same instance for both interfaces
@@ -260,12 +415,12 @@ builder.RegisterType<EmailService>()
 ## Lifetime Management
 
 ### Singleton Lifetime
-- Services registered with `.SingleInstance()` are created once and cached
+- Services registered with `.SingleInstance()` or `[Service(Lifecycle.Singleton)]` are created once and cached
 - Subsequent resolutions return the same instance
 - Cache key: `Type.AssemblyQualifiedName`
 
 ### Transient Lifetime
-- Default lifetime when `.SingleInstance()` is not called
+- Default lifetime when `.SingleInstance()` is not called or `[Service(Lifecycle.Transient)]` is used
 - New instance created for each resolution
 - No caching performed
 
@@ -304,7 +459,20 @@ LogHelper.LogAction = (message) => Debug.WriteLine($"[DI] {message}");
 
 ## Best Practices
 
-### 1. Register Dependencies Before Dependents
+### 1. Use Attribute-Based Registration ⭐ **NEW**
+```csharp
+// Good: Use decorators for automatic registration
+[Service(Lifecycle.Singleton)]
+public class Logger : ILogger { }
+
+[Controller]
+public class PlayerController : BaseScript { }
+
+// Then use RegisterModule for bulk registration
+builder.RegisterModule(Assembly.GetExecutingAssembly());
+```
+
+### 2. Register Dependencies Before Dependents
 ```csharp
 // Register dependencies first
 builder.RegisterType<Logger>().As<ILogger>();
@@ -314,7 +482,7 @@ builder.RegisterType<DatabaseService>().As<IDatabaseService>();
 builder.RegisterType<UserService>().As<IUserService>();
 ```
 
-### 2. Use Interface Abstractions
+### 3. Use Interface Abstractions
 ```csharp
 // Good: Register against interface
 builder.RegisterType<FileLogger>().As<ILogger>();
@@ -323,7 +491,7 @@ builder.RegisterType<FileLogger>().As<ILogger>();
 builder.RegisterType<FileLogger>();
 ```
 
-### 3. Prefer Constructor Injection
+### 4. Prefer Constructor Injection
 ```csharp
 // Good: Dependencies declared in constructor
 public class UserService
@@ -332,20 +500,31 @@ public class UserService
 }
 ```
 
-### 4. Use Singletons for Stateless Services
+### 5. Use Singletons for Stateless Services
 ```csharp
 // Stateless services should be singletons
-builder.RegisterType<EmailService>().SingleInstance().As<IEmailService>();
+[Service(Lifecycle.Singleton)]
+public class EmailService : IEmailService { }
 
-// Stateful services should be transient (default)
-builder.RegisterType<UserSession>().As<IUserSession>();
+// Stateful services should be transient
+[Service(Lifecycle.Transient)]
+public class UserSession : IUserSession { }
 ```
 
-### 5. Configure Logging Early
+### 6. Configure Logging Early
 ```csharp
 // Configure logging before building container
 LogHelper.LogAction = (message) => Debug.WriteLine($"[DI] {message}");
 var builder = new ContainerBuilder();
+```
+
+### 7. Use RegisterModule for Clean Setup ⭐ **NEW**
+```csharp
+// Clean and simple setup
+var builder = new ContainerBuilder();
+builder.RegisterModule(Assembly.GetExecutingAssembly());
+var container = builder.Build();
+container.ResolveControllers();
 ```
 
 ## Integration with FiveM
@@ -361,7 +540,7 @@ public class ClientMain : BaseScript
     public ClientMain()
     {
         SetupDependencyInjection();
-        InitializeControllers();
+        // Controllers are automatically resolved
     }
 }
 ```
@@ -370,15 +549,22 @@ public class ClientMain : BaseScript
 Controllers can register FiveM commands and use injected dependencies:
 
 ```csharp
-public PlayerController(ILogger logger, IPlayerService playerService)
+[Controller]
+public class PlayerController : BaseScript
 {
-    _logger = logger;
-    _playerService = playerService;
-    
-    API.RegisterCommand("heal", new Action<int, List<object>, string>((source, args, raw) =>
+    private readonly ILogger _logger;
+    private readonly IPlayerService _playerService;
+
+    public PlayerController(ILogger logger, IPlayerService playerService)
     {
-        HealCommand();
-    }), false);
+        _logger = logger;
+        _playerService = playerService;
+        
+        API.RegisterCommand("heal", new Action<int, List<object>, string>((source, args, raw) =>
+        {
+            HealCommand();
+        }), false);
+    }
 }
 ```
 
@@ -388,19 +574,55 @@ public PlayerController(ILogger logger, IPlayerService playerService)
 2. **Single Constructor**: Only supports single constructor per type
 3. **No Property Injection**: Only constructor injection is supported
 4. **No Conditional Registration**: No built-in support for conditional registrations
-5. **No Decorator Pattern**: No built-in support for service decoration
+5. **~~No Decorator Pattern~~**: ✅ **NEW**: Decorator pattern is now supported through `[Service]` and `[Controller]` attributes
 
 ## File Structure
 ```
 Shared/DependencyInjection/
-├── Container.cs              # Main DI container
-├── ContainerBuilder.cs       # Fluent registration API
-├── Registration.cs           # Registration metadata classes
-├── RegistrationExtensions.cs # Fluent extension methods
-└── LogHelper.cs             # Configurable logging
+├── Container.cs                    # Main DI container
+├── ContainerBuilder.cs             # Fluent registration API
+├── Registration.cs                 # Registration metadata classes
+├── RegistrationExtensions.cs       # Fluent extension methods
+├── LogHelper.cs                    # Configurable logging
+├── ModuleAttributes.cs             # ⭐ NEW: Service and Controller decorators
+└── ContainerBuilderExtensions.cs   # ⭐ NEW: Module registration extensions
 ```
 
-This DI system provides a solid foundation for dependency management in FiveM C# resources while maintaining simplicity and performance.
+## Migration from Manual Registration
+
+If you're migrating from manual registration to attribute-based registration:
+
+### Before (Manual)
+```csharp
+var builder = new ContainerBuilder();
+
+builder.RegisterType<Logger>()
+       .SingleInstance()
+       .As<ILogger>();
+
+builder.RegisterType<PlayerController>()
+       .SingleInstance();
+
+var container = builder.Build();
+```
+
+### After (Attribute-Based) ⭐ **NEW**
+```csharp
+// Add decorators to your classes
+[Service(Lifecycle.Singleton)]
+public class Logger : ILogger { }
+
+[Controller]
+public class PlayerController : BaseScript { }
+
+// Then use automatic registration
+var builder = new ContainerBuilder();
+builder.RegisterModule(Assembly.GetExecutingAssembly());
+var container = builder.Build();
+container.ResolveControllers();
+```
+
+This DI system provides a solid foundation for dependency management in FiveM C# resources while maintaining simplicity and performance. The new attribute-based system makes it even easier to manage dependencies with minimal boilerplate code.
 
 ---
 

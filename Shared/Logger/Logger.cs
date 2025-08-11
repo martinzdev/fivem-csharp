@@ -1,7 +1,7 @@
 using System;
 using core.Shared.DependencyInjection;
 
-namespace core.Client.Utils.Logger
+namespace core.Shared.Logger
 {
     [Service(Lifecycle.Singleton)]
     public class Logger : ILogger
