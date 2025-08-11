@@ -1,8 +1,4 @@
-using System.Threading.Tasks;
-using CitizenFX.Core;
 using CitizenFX.Core.Native;
-using core.Shared.Attributes.onCommand;
-using core.Shared.Attributes.onTick;
 using core.Shared.DependencyInjection;
 
 namespace core.Client.Modules.World.Controllers

@@ -1,5 +1,4 @@
 using CitizenFX.Core.Native;
-
 using core.Shared.DependencyInjection;
 
 namespace core.Client.Modules.World.Services

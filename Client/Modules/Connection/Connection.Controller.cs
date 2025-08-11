@@ -1,4 +1,3 @@
-using CitizenFX.Core;
 using core.Shared.Attributes.onCommand;
 using core.Shared.DependencyInjection;
 using core.Shared.Logger;
@@ -15,7 +14,7 @@ namespace core.Client.Modules.Connection
       _logger.Info("Connection Controller started!");
     }
 
-    [onCommand("dev:command", false)]
+    [onCommand("dev:command")]
     public void onCommand()
     {
       _logger.Info("Command executed!");

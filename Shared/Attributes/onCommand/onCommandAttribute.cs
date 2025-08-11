@@ -10,7 +10,7 @@ namespace core.Shared.Attributes.onCommand
     public bool Restricted { get; }
     public string[] Aliases { get; }
 
-    public onCommandAttribute(string commandName, bool restricted, params string[] aliases)
+    public onCommandAttribute(string commandName, bool restricted = false, params string[] aliases)
     {
       CommandName = commandName;
       Restricted = restricted;
