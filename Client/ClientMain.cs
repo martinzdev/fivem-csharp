@@ -15,13 +15,11 @@ namespace core.Client
     public ClientMain()
     {
       var logger = new Logger();
-      
       LogHelper.LogAction = (message) => logger.Debug($"[DI] {message}");
 
       var builder = new ContainerBuilder();
       builder.RegisterType<onCommandRegistry>().SingleInstance();
       builder.RegisterType<onTickRegistry>().SingleInstance();
-      
       builder.RegisterModule(Assembly.GetExecutingAssembly());
             
       container = builder.Build();
@@ -29,7 +27,6 @@ namespace core.Client
       
       logger.Debug("Client started!");
       
-      // Set this ClientMain as the master script for the tick registry
       var tickRegistry = container.Resolve<onTickRegistry>();
       tickRegistry.SetTickRegistrationHandler(tickHandler => this.Tick += tickHandler);
       
