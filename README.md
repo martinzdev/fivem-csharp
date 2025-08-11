@@ -49,6 +49,117 @@ container.ResolveControllers(); // Automatically resolve all controllers
 
 For complete DI documentation, see the [Dependency Injection Guide](#dependency-injection-detailed-guide) below.
 
+## Command System Architecture ⭐ **NEW**
+
+The command system provides automatic command registration and discovery using decorators, eliminating the need for manual `API.RegisterCommand()` calls.
+
+### How It Works
+
+1. **Command Discovery**: The `CommandRegistry` automatically scans all controllers for methods decorated with `[onCommand]`
+2. **Automatic Registration**: Commands are registered with FiveM using the appropriate method signature
+3. **Parameter Resolution**: The system automatically handles different method signatures and parameter types
+4. **Access Control**: Restricted commands are automatically marked as admin-only in FiveM
+
+### Command Registry (`CommandRegistry.cs`)
+
+**Key Methods:**
+- `RegisterAllCommands(IEnumerable<object> controllers)`: Registers commands from all controllers
+- `RegisterControllerCommands(object controller)`: Registers commands from a specific controller
+
+**Features:**
+- **Method Signature Detection**: Automatically detects and handles different parameter combinations
+- **Alias Support**: Registers multiple command names for the same method
+- **Access Control**: Applies restriction flags to FiveM command registration
+- **Error Handling**: Graceful handling of invalid method signatures
+
+### Integration with DI System
+
+The command system integrates seamlessly with the dependency injection system:
+
+```csharp
+// 1. Register the command registry
+builder.RegisterType<onCommandRegistry>().SingleInstance();
+
+// 2. Register all controllers (with [Controller] decorators)
+builder.RegisterModule(Assembly.GetExecutingAssembly());
+
+// 3. Build container and resolve controllers
+var container = builder.Build();
+container.ResolveControllers();
+
+// 4. Initialize command system
+SharedMain.Initialize(container);
+```
+
+### Command Method Signatures
+
+The system supports four different method signatures for maximum flexibility:
+
+| Signature | Description | Use Case |
+|-----------|-------------|----------|
+| `void Method()` | No parameters | Simple commands like `/ping` |
+| `void Method(int source)` | Source player ID | Commands that need to know who executed them |
+| `void Method(int source, List<object> args)` | Source + arguments | Commands with parameters like `/spawn car` |
+| `void Method(int source, List<object> args, string raw)` | Full context | Advanced commands needing raw command string |
+
+### Example: Complete Command Controller
+
+```csharp
+[Controller]
+public class GameController : BaseScript
+{
+    private readonly ILogger _logger;
+    private readonly IPlayerService _playerService;
+
+    public GameController(ILogger logger, IPlayerService playerService)
+    {
+        _logger = logger;
+        _playerService = playerService;
+    }
+
+    // Simple command
+    [onCommand("ping", false)]
+    public void PingCommand()
+    {
+        _logger.Info("Pong!");
+    }
+
+    // Command with player context
+    [onCommand("heal", false)]
+    public void HealCommand(int source)
+    {
+        _playerService.HealPlayer(source);
+        _logger.Info($"Player {source} has been healed");
+    }
+
+    // Command with arguments
+    [onCommand("give", true, "item")] // Admin only, with alias
+    public void GiveItemCommand(int source, List<object> args)
+    {
+        if (args.Count < 2)
+        {
+            _logger.Warning("Usage: /give <player> <item>");
+            return;
+        }
+
+        var targetPlayer = int.Parse(args[0].ToString());
+        var itemName = args[1].ToString();
+        
+        _playerService.GiveItem(targetPlayer, itemName);
+        _logger.Info($"Gave {itemName} to player {targetPlayer}");
+    }
+
+    // Command with full context
+    [onCommand("broadcast", true)]
+    public void BroadcastCommand(int source, List<object> args, string raw)
+    {
+        var message = string.Join(" ", args);
+        _logger.Info($"Admin {source} broadcast: {message}");
+        // Implementation...
+    }
+}
+```
+
 ## Building
 
 You can build the projects in two ways: using the `build.cmd` script or directly through your preferred IDE, such as Visual Studio or JetBrains Rider (IDEA).
@@ -154,6 +265,20 @@ Extension methods for bulk registration and controller resolution.
 - `RegisterModule(Assembly)`: Automatically registers all services and controllers in an assembly
 - `ResolveControllers()`: Automatically resolves all registered controllers
 
+#### 8. Command Attributes (`Attributes/onCommand/`) ⭐ **NEW**
+Attribute-based command registration system for FiveM commands.
+
+**Components:**
+- `[onCommand]`: Decorates methods to automatically register them as FiveM commands
+- `CommandRegistry`: Automatically discovers and registers all decorated command methods
+- **Features**: Command aliases, restricted access control, flexible method signatures
+
+**Command Method Signatures Supported:**
+- `void Method()` - No parameters
+- `void Method(int source)` - Source player ID only
+- `void Method(int source, List<object> args)` - Source and arguments
+- `void Method(int source, List<object> args, string raw)` - Full command context
+
 ## Usage Examples
 
 ### Modern Setup with Decorators ⭐ **NEW**
@@ -170,6 +295,9 @@ public class ClientMain : BaseScript
 
         var builder = new ContainerBuilder();
         
+        // Register the command registry
+        builder.RegisterType<onCommandRegistry>().SingleInstance();
+        
         // Automatically register all services and controllers
         builder.RegisterModule(Assembly.GetExecutingAssembly());
             
@@ -177,6 +305,9 @@ public class ClientMain : BaseScript
         
         // Automatically resolve all controllers
         container.ResolveControllers();
+        
+        // Initialize command system and register all commands
+        SharedMain.Initialize(container);
         
         var logger = container.Resolve<ILogger>();
         logger.Info("Client started!");
@@ -196,6 +327,9 @@ public class ServerMain : BaseScript
 
         var builder = new ContainerBuilder();
         
+        // Register the command registry
+        builder.RegisterType<onCommandRegistry>().SingleInstance();
+        
         // Automatically register all services and controllers
         builder.RegisterModule(Assembly.GetExecutingAssembly());
         
@@ -203,6 +337,9 @@ public class ServerMain : BaseScript
         
         // Automatically resolve all controllers
         container.ResolveControllers();
+        
+        // Initialize command system and register all commands
+        SharedMain.Initialize(container);
         
         var logger = container.Resolve<ILogger>();
         logger.Info("Server started!");
@@ -274,6 +411,103 @@ public class PlayerController : BaseScript
 public class SessionController : BaseScript
 {
     // Implementation...
+}
+```
+
+### Command Registration with Decorators ⭐ **NEW**
+
+#### Basic Command Registration
+```csharp
+[Controller]
+public class PlayerController : BaseScript
+{
+    private readonly ILogger _logger;
+
+    public PlayerController(ILogger logger)
+    {
+        _logger = logger;
+    }
+
+    [onCommand("heal", false)] // Command name, not restricted
+    public void HealCommand()
+    {
+        _logger.Info("Heal command executed!");
+    }
+}
+```
+
+#### Command with Aliases
+```csharp
+[Controller]
+public class VehicleController : BaseScript
+{
+    [onCommand("spawn", false, "car", "vehicle")] // Command name, not restricted, with aliases
+    public void SpawnVehicle(int source, List<object> args)
+    {
+        // args[0] contains the vehicle model
+        var vehicleModel = args[0].ToString();
+        // Implementation...
+    }
+}
+```
+
+#### Restricted Commands
+```csharp
+[Controller]
+public class AdminController : BaseScript
+{
+    [onCommand("kick", true)] // Command name, restricted (admin only)
+    public void KickPlayer(int source, List<object> args, string raw)
+    {
+        // source: player ID who executed the command
+        // args: command arguments
+        // raw: raw command string
+        if (args.Count > 0)
+        {
+            var targetPlayer = int.Parse(args[0].ToString());
+            // Kick implementation...
+        }
+    }
+}
+```
+
+#### Commands with Different Parameter Signatures
+```csharp
+[Controller]
+public class UtilityController : BaseScript
+{
+    // No parameters
+    [onCommand("ping", false)]
+    public void PingCommand()
+    {
+        Debug.WriteLine("Pong!");
+    }
+
+    // Only source player ID
+    [onCommand("whoami", false)]
+    public void WhoAmICommand(int source)
+    {
+        Debug.WriteLine($"You are player {source}");
+    }
+
+    // Source and arguments
+    [onCommand("say", false)]
+    public void SayCommand(int source, List<object> args)
+    {
+        if (args.Count > 0)
+        {
+            var message = string.Join(" ", args);
+            Debug.WriteLine($"Player {source} says: {message}");
+        }
+    }
+
+    // Full command context
+    [onCommand("echo", false)]
+    public void EchoCommand(int source, List<object> args, string raw)
+    {
+        Debug.WriteLine($"Raw command: {raw}");
+        Debug.WriteLine($"Player {source} executed echo with {args.Count} arguments");
+    }
 }
 ```
 
@@ -370,6 +604,18 @@ public class MultiHandlerService
 [Controller] // Singleton, auto-register
 [Controller(Lifecycle.Transient)] // Transient lifecycle
 ```
+
+#### Command Attributes ⭐ **NEW**
+```csharp
+[onCommand("commandName", false)] // Basic command, not restricted
+[onCommand("commandName", true)] // Restricted command (admin only)
+[onCommand("commandName", false, "alias1", "alias2")] // Command with aliases
+```
+
+**Command Parameters:**
+- **Command Name**: The main command identifier
+- **Restricted**: Boolean flag for access control (true = admin only, false = public)
+- **Aliases**: Optional array of alternative command names
 
 ### 2. Singleton Services
 ```csharp
@@ -527,6 +773,12 @@ var container = builder.Build();
 container.ResolveControllers();
 ```
 
+### 8. Initialize Command System ⭐ **NEW**
+```csharp
+// Don't forget to initialize the command system
+SharedMain.Initialize(container);
+```
+
 ## Integration with FiveM
 
 ### BaseScript Integration
@@ -560,10 +812,8 @@ public class PlayerController : BaseScript
         _logger = logger;
         _playerService = playerService;
         
-        API.RegisterCommand("heal", new Action<int, List<object>, string>((source, args, raw) =>
-        {
-            HealCommand();
-        }), false);
+        // Commands are automatically registered via [onCommand] decorators
+        // No need for manual API.RegisterCommand() calls!
     }
 }
 ```
@@ -574,18 +824,23 @@ public class PlayerController : BaseScript
 2. **Single Constructor**: Only supports single constructor per type
 3. **No Property Injection**: Only constructor injection is supported
 4. **No Conditional Registration**: No built-in support for conditional registrations
-5. **~~No Decorator Pattern~~**: ✅ **NEW**: Decorator pattern is now supported through `[Service]` and `[Controller]` attributes
+5. **~~No Decorator Pattern~~**: ✅ **NEW**: Decorator pattern is now supported through `[Service]`, `[Controller]`, and `[onCommand]` attributes
 
 ## File Structure
 ```
-Shared/DependencyInjection/
-├── Container.cs                    # Main DI container
-├── ContainerBuilder.cs             # Fluent registration API
-├── Registration.cs                 # Registration metadata classes
-├── RegistrationExtensions.cs       # Fluent extension methods
-├── LogHelper.cs                    # Configurable logging
-├── ModuleAttributes.cs             # ⭐ NEW: Service and Controller decorators
-└── ContainerBuilderExtensions.cs   # ⭐ NEW: Module registration extensions
+Shared/
+├── DependencyInjection/
+│   ├── Container.cs                    # Main DI container
+│   ├── ContainerBuilder.cs             # Fluent registration API
+│   ├── Registration.cs                 # Registration metadata classes
+│   ├── RegistrationExtensions.cs       # Fluent extension methods
+│   ├── LogHelper.cs                    # Configurable logging
+│   ├── ModuleAttributes.cs             # ⭐ NEW: Service and Controller decorators
+│   └── ContainerBuilderExtensions.cs   # ⭐ NEW: Module registration extensions
+└── Attributes/
+    └── onCommand/
+        ├── CommandAttribute.cs          # ⭐ NEW: onCommand decorator
+        └── CommandRegistry.cs           # ⭐ NEW: Command registration system
 ```
 
 ## Migration from Manual Registration
@@ -603,6 +858,12 @@ builder.RegisterType<Logger>()
 builder.RegisterType<PlayerController>()
        .SingleInstance();
 
+// Manual command registration
+API.RegisterCommand("heal", new Action<int, List<object>, string>((source, args, raw) =>
+{
+    // Implementation
+}), false);
+
 var container = builder.Build();
 ```
 
@@ -613,16 +874,25 @@ var container = builder.Build();
 public class Logger : ILogger { }
 
 [Controller]
-public class PlayerController : BaseScript { }
+public class PlayerController : BaseScript 
+{
+    [onCommand("heal", false)]
+    public void HealCommand(int source)
+    {
+        // Implementation
+    }
+}
 
 // Then use automatic registration
 var builder = new ContainerBuilder();
+builder.RegisterType<onCommandRegistry>().SingleInstance();
 builder.RegisterModule(Assembly.GetExecutingAssembly());
 var container = builder.Build();
 container.ResolveControllers();
+SharedMain.Initialize(container); // Automatically registers all commands
 ```
 
-This DI system provides a solid foundation for dependency management in FiveM C# resources while maintaining simplicity and performance. The new attribute-based system makes it even easier to manage dependencies with minimal boilerplate code.
+This DI system provides a solid foundation for dependency management in FiveM C# resources while maintaining simplicity and performance. The new attribute-based system makes it even easier to manage dependencies and commands with minimal boilerplate code.
 
 ---
 
